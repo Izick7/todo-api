@@ -1,34 +1,40 @@
 const todos = require("../data/todos");
 
-const getTodo = (req, res) => {
+
+// GET ALL TODOS
+const getTodos = (req, res) => {
+
+    const userTodos = todos.filter(
+        todo => todo.userId === req.user.id
+    );
+
     return res.status(200).json({
-       todo
+        todos: userTodos
     });
 };
 
+
+// CREATE TODO
 const createTodo = (req, res) => {
-    const { name, description, price } = req.body;
 
-    if (!name || !description || price === undefined) {
-        return res.status(400).json({
-            message: "Name, description and price are required"
-        });
-    }
+    const { title, description } = req.body;
 
-    if (typeof price !== "number" || price < 0) {
+    if (!title || !description) {
         return res.status(400).json({
-            message: "Price must be a valid positive number"
+            message: "Title and description are required"
         });
     }
 
     const newTodo = {
-        id: products.length + 1,
-        name: name.trim(),
+        id: todos.length + 1,
+        title: title.trim(),
         description: description.trim(),
-        price
+        completed: false,
+        userId: req.user.id,
+        createdAt: new Date()
     };
 
-    products.push(newTodo);
+    todos.push(newTodo);
 
     return res.status(201).json({
         message: "Todo created successfully",
@@ -36,37 +42,85 @@ const createTodo = (req, res) => {
     });
 };
 
-const updateTodo = (req, res) => {
+
+// GET ONE TODO
+const getTodo = (req, res) => {
+
     const todoId = Number(req.params.id);
 
-    const todo = todo.find(
+    const todo = todos.find(
         todo => todo.id === todoId
     );
 
     if (!todo) {
         return res.status(404).json({
-            message: "todo not found"
+            message: "Todo not found"
         });
     }
 
-    const { name, description, price } = req.body;
-
-    if (name !== undefined) {
-        todo.name = name.trim();
+    if (todo.userId !== req.user.id) {
+        return res.status(403).json({
+            message: "You are not authorized to access this todo"
+        });
     }
 
-    if (description !== undefined) {
-        product.description = description.trim();
+    return res.status(200).json({
+        todo
+    });
+};
+
+
+// UPDATE TODO
+const updateTodo = (req, res) => {
+
+    const todoId = Number(req.params.id);
+
+    const todo = todos.find(
+        todo => todo.id === todoId
+    );
+
+    if (!todo) {
+        return res.status(404).json({
+            message: "Todo not found"
+        });
     }
 
-    if (price !== undefined) {
-        if (typeof price !== "number" || price < 0) {
+    if (todo.userId !== req.user.id) {
+        return res.status(403).json({
+            message: "You are not authorized to update this todo"
+        });
+    }
+
+    const { title, description, completed } = req.body;
+
+    if (title !== undefined) {
+        if (typeof title !== "string" || !title.trim()) {
             return res.status(400).json({
-                message: "Price must be a valid positive number"
+                message: "Title must be a valid string"
             });
         }
 
-        todo.price = price;
+        todo.title = title.trim();
+    }
+
+    if (description !== undefined) {
+        if (typeof description !== "string" || !description.trim()) {
+            return res.status(400).json({
+                message: "Description must be a valid string"
+            });
+        }
+
+        todo.description = description.trim();
+    }
+
+    if (completed !== undefined) {
+        if (typeof completed !== "boolean") {
+            return res.status(400).json({
+                message: "Completed must be a boolean"
+            });
+        }
+
+        todo.completed = completed;
     }
 
     return res.status(200).json({
@@ -75,16 +129,27 @@ const updateTodo = (req, res) => {
     });
 };
 
+
+// DELETE TODO
 const deleteTodo = (req, res) => {
+
     const todoId = Number(req.params.id);
 
-    const TodoIndex = todo.findIndex(
+    const todoIndex = todos.findIndex(
         todo => todo.id === todoId
     );
 
     if (todoIndex === -1) {
         return res.status(404).json({
             message: "Todo not found"
+        });
+    }
+
+    const todo = todos[todoIndex];
+
+    if (todo.userId !== req.user.id) {
+        return res.status(403).json({
+            message: "You are not authorized to delete this todo"
         });
     }
 
@@ -95,7 +160,9 @@ const deleteTodo = (req, res) => {
     });
 };
 
+
 module.exports = {
+    getTodos,
     getTodo,
     createTodo,
     updateTodo,

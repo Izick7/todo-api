@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const users = require("../data/users");
 const jwt = require("jsonwebtoken");
 // Registration logic
@@ -24,7 +24,7 @@ const register = async (req, res) => {
             });
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(normalizedEmail)) {
             return res.status(400).json({
@@ -33,7 +33,7 @@ const register = async (req, res) => {
         }
 
         const passwordRegex =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{6,}$/;
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{6,}$/;
 
         if (!passwordRegex.test(password)) {
             return res.status(400).json({

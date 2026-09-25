@@ -1,6 +1,7 @@
 const express = require("express");
 
 const {
+    getTodos,
     getTodo,
     createTodo,
     updateTodo,
@@ -8,33 +9,17 @@ const {
 } = require("../controllers/todoController");
 
 const authenticate = require("../middleware/authMiddleware");
-const authorize = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
+router.get("/", authenticate, getTodos);
 
-router.get("/", authenticate, getTodo);
+router.get("/:id", authenticate, getTodo);
 
+router.post("/", authenticate, createTodo);
 
-router.post(
-    "/",
-    authenticate,
-    authorize("admin"),
-    createTodo
-);
+router.put("/:id", authenticate, updateTodo);
 
-router.put(
-    "/:id",
-    authenticate,
-    authorize("admin"),
-    updateTodo
-);
-
-router.delete(
-    "/:id",
-    authenticate,
-    authorize("admin"),
-    deleteTodo
-);
+router.delete("/:id", authenticate, deleteTodo);
 
 module.exports = router;

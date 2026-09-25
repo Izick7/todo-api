@@ -1,3 +1,3 @@
 const todos = [];
 
-module.export = todos
+module.exports = todos
